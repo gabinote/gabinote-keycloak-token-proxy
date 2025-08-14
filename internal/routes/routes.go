@@ -54,7 +54,7 @@ func (r *router) setupRoutes() {
 	// keycloak 엔드포인트
 	r.engine.POST("/keycloak/exchange", r.keycloakHandler.ExchangeToken)
 	r.engine.POST("/keycloak/refresh", r.keycloakHandler.RefreshToken)
-	r.engine.POST("/keycloak/logout", r.keycloakHandler.Logout)
+	r.engine.DELETE("/keycloak/logout", r.keycloakHandler.Logout)
 
 	// 404 핸들러
 	r.engine.NoRoute(r.errorHandlers.NotFound)
