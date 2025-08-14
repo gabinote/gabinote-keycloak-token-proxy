@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// HealthHandlers provides methods to handle health check requests.
 type HealthHandlers interface {
 	HealthCheck(c *gin.Context)
 }

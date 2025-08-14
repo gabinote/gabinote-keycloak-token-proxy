@@ -1,5 +1,6 @@
 package keycloak
 
+// KeycloakTokenExchangeRes Keycloak 에서 Idp 토큰 교환을 요청한 후 응답으로 받는 구조체.
 type KeycloakTokenExchangeRes struct {
 	AccessToken      string `json:"access_token"`
 	ExpiresIn        int64  `json:"expires_in"`
@@ -10,6 +11,7 @@ type KeycloakTokenExchangeRes struct {
 	Scope            string `json:"scope,omitempty"`
 }
 
+// KeycloakAccessTokenResponse Keycloak 에서 Access Token 갱신을 요청한 후 응답으로 받는 구조체.
 type KeycloakAccessTokenResponse struct {
 	AccessToken      string `json:"access_token"`
 	RefreshToken     string `json:"refresh_token,omitempty"`

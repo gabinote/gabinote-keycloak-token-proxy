@@ -6,6 +6,7 @@ import (
 	"keycloak-token-proxy/internal/handlers"
 )
 
+// Router defines the interface for setting up routes and middleware in the application.
 type Router interface {
 	setupMiddleware()
 	setupRoutes()

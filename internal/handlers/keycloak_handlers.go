@@ -10,6 +10,7 @@ import (
 	"net/http"
 )
 
+// KeycloakHandlers provides methods to handle Keycloak token exchange, refresh, and logout requests.
 type KeycloakHandlers interface {
 	ExchangeToken(c *gin.Context)
 	RefreshToken(c *gin.Context)
@@ -28,6 +29,8 @@ func NewKeycloakHandlers(keycloakClient keycloak.KeycloakClient, securityConfig 
 	}
 }
 
+// ExchangeToken Identity Broker Login Flow 에서 나온 외부 Idp 토큰을 Keycloak Access Token 으로 교환하는 핸들러.
+// 이때 refresh token을 쿠키에 저장.
 func (k *keycloakHandlers) ExchangeToken(c *gin.Context) {
 	var req dto.TokenExchangeReq
 
@@ -87,6 +90,8 @@ func (k *keycloakHandlers) ExchangeToken(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// RefreshToken 기존에 저장된 refresh token을 이용하여 새로운 access token을 발급받는 핸들러.
+// 이때 기존 refresh token을 함께 갱신.
 func (k *keycloakHandlers) RefreshToken(c *gin.Context) {
 	refreshToken, err := c.Cookie(k.securityConfig.RefreshCookieName)
 	if err != nil {
@@ -130,6 +135,7 @@ func (k *keycloakHandlers) RefreshToken(c *gin.Context) {
 		Message:     "OK",
 	}
 
+	// Refresh token 갱신
 	c.SetCookie(
 		k.securityConfig.RefreshCookieName,
 		exchangeRes.RefreshToken,
@@ -143,6 +149,7 @@ func (k *keycloakHandlers) RefreshToken(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// Logout 로그아웃 핸들러. refresh token을 쿠키에서 삭제하고 Keycloak에서 로그아웃 처리.
 func (k *keycloakHandlers) Logout(c *gin.Context) {
 	refreshToken, err := c.Cookie(k.securityConfig.RefreshCookieName)
 	if err != nil {
