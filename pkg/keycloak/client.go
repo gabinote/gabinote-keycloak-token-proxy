@@ -14,6 +14,7 @@ import (
 	"time"
 )
 
+// KeycloakClient defines the interface for Keycloak authentication operations.
 type KeycloakClient interface {
 	ExchangeToken(req *dto.TokenExchangeReq) (*KeycloakTokenExchangeRes, error)
 	RefreshAccessToken(refreshToken string) (*KeycloakAccessTokenResponse, error)
@@ -34,6 +35,7 @@ func NewKeycloakAuth(cfg *config.KeycloakConfig) KeycloakClient {
 	}
 }
 
+// ExchangeToken 클라이언트가 Identity Broker Login Flow 에서 획득한 외부 Idp 토큰을 Keycloak Access Token 으로 교환.
 func (k *keycloakClient) ExchangeToken(data *dto.TokenExchangeReq) (*KeycloakTokenExchangeRes, error) {
 	tokenUrl := fmt.Sprintf("%s/realms/%s/protocol/openid-connect/token", k.config.URL, k.config.Realm)
 
@@ -80,6 +82,7 @@ func (k *keycloakClient) ExchangeToken(data *dto.TokenExchangeReq) (*KeycloakTok
 	return &tokenResp, nil
 }
 
+// RefreshAccessToken refresh token으로 access token 및 refresh token을 갱신.
 func (k *keycloakClient) RefreshAccessToken(refreshToken string) (*KeycloakAccessTokenResponse, error) {
 	tokenUrl := fmt.Sprintf("%s/realms/%s/protocol/openid-connect/token", k.config.URL, k.config.Realm)
 
@@ -121,6 +124,7 @@ func (k *keycloakClient) RefreshAccessToken(refreshToken string) (*KeycloakAcces
 	return &tokenResp, nil
 }
 
+// Logout Keycloak에서 로그아웃 처리
 func (k *keycloakClient) Logout(refreshToken string) error {
 	logoutUrl := fmt.Sprintf("%s/realms/%s/protocol/openid-connect/logout", k.config.URL, k.config.Realm)
 

@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// ErrorHandlers provides methods to handle HTTP errors such as 404 Not Found and 405 Method Not Allowed.
 type ErrorHandlers interface {
 	NotFound(c *gin.Context)
 	MethodNotAllowed(c *gin.Context)

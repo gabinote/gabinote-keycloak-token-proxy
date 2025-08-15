@@ -1,5 +1,6 @@
 package dto
 
+// TokenRefreshRes represents the structure of a token refresh request.
 type TokenRefreshRes struct {
 	Result      bool   `json:"result"`
 	Message     string `json:"message"`
