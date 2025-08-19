@@ -122,5 +122,5 @@ docker run -d -p 3000:3000 --name keycloak-token-proxy keycloak-token-proxy
 ```
 
 
-## License
-MIT License © 2025 Your Name
+## 4. License
+MIT License © 2025 hrabit64
