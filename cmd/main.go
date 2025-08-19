@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"keycloak-token-proxy/pkg/keycloak"
 	"net/http"
 	"os"
@@ -19,14 +20,26 @@ import (
 )
 
 func main() {
-	// 로그 설정
-	logrus.SetFormatter(&logrus.JSONFormatter{})
-	logrus.SetLevel(logrus.InfoLevel)
-
 	// 설정 로드
 	if err := config.LoadConfig(); err != nil {
 		logrus.Fatalf("Config Load Failed : %v", err)
 	}
+
+	// 로그 설정
+	logrus.SetFormatter(&logrus.JSONFormatter{})
+
+	if config.AppConfig.Server.LoggingLevel == "debug" {
+		logrus.SetLevel(logrus.DebugLevel)
+	} else if config.AppConfig.Server.LoggingLevel == "error" {
+		logrus.SetLevel(logrus.ErrorLevel)
+	} else {
+		logrus.SetLevel(logrus.InfoLevel)
+	}
+
+	if config.AppConfig.Server.ReleaseMode {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	logrus.Info("Keycloak Proxy Server Start")
 	logrus.Info("Use Keycloak : " + config.AppConfig.Keycloak.URL)
 	// Keycloak 인증 클라이언트 생성

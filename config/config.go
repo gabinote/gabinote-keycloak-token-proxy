@@ -16,8 +16,10 @@ type Config struct {
 
 // ServerConfig 서버 기본 설정
 type ServerConfig struct {
-	Port int    `mapstructure:"port"`
-	Host string `mapstructure:"host"`
+	Port         int    `mapstructure:"port"`
+	Host         string `mapstructure:"host"`
+	LoggingLevel string `mapstructure:"logging_level"` // 로그 레벨 설정
+	ReleaseMode  bool   `mapstructure:"release_mode"`  // 릴리즈 모드 설정
 }
 
 // KeycloakConfig Keycloak 인증 서버 설정
@@ -69,6 +71,7 @@ func setDefaults() {
 	// 서버 기본값
 	viper.SetDefault("server.port", 8080)
 	viper.SetDefault("server.host", "0.0.0.0")
+	viper.SetDefault("server.logging_level", "info")
 
 	// Keycloak 기본값
 	viper.SetDefault("keycloak.url", "http://localhost:8080")
