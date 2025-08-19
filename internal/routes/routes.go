@@ -2,7 +2,6 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	cors "github.com/rs/cors/wrapper/gin"
 	"keycloak-token-proxy/internal/handlers"
 )
 
@@ -43,8 +42,8 @@ func (r *router) setupMiddleware() {
 	r.engine.Use(gin.Recovery())
 
 	// CORS 미들웨어
-	corsConfig := cors.Default()
-	r.engine.Use(corsConfig)
+	//corsConfig := cors.Default()
+	//r.engine.Use(corsConfig)
 }
 
 func (r *router) setupRoutes() {
