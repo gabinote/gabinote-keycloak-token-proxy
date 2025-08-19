@@ -139,17 +139,26 @@ func (k *keycloakHandlers) RefreshToken(c *gin.Context) {
 	}
 
 	// Refresh token 갱신
-	c.SetSameSite(http.SameSiteNoneMode)
-	c.SetCookie(
-		k.securityConfig.RefreshCookieName,
-		exchangeRes.RefreshToken,
-		k.securityConfig.RefreshMaxAge,
-		k.securityConfig.RefreshAllowPath,
-		k.securityConfig.RefreshDomain,
-		true,
-		true,
-	)
-
+	//c.SetSameSite(http.SameSiteNoneMode)
+	//c.SetCookie(
+	//	k.securityConfig.RefreshCookieName,
+	//	exchangeRes.RefreshToken,
+	//	k.securityConfig.RefreshMaxAge,
+	//	k.securityConfig.RefreshAllowPath,
+	//	k.securityConfig.RefreshDomain,
+	//	true,
+	//	true,
+	//)
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     k.securityConfig.RefreshCookieName,
+		Value:    exchangeRes.RefreshToken,
+		Path:     k.securityConfig.RefreshAllowPath,
+		Domain:   k.securityConfig.RefreshDomain,
+		MaxAge:   k.securityConfig.RefreshMaxAge,
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: http.SameSiteNoneMode,
+	})
 	c.JSON(http.StatusOK, resp)
 }
 
