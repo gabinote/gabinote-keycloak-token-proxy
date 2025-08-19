@@ -58,6 +58,7 @@ func (k *keycloakHandlers) ExchangeToken(c *gin.Context) {
 				Message:     "Your token is not valid token",
 			}
 			c.JSON(http.StatusForbidden, resp)
+			return
 		} else {
 			resp := dto.TokenExchangeRes{
 				AccessToken: "",
@@ -102,6 +103,7 @@ func (k *keycloakHandlers) RefreshToken(c *gin.Context) {
 			Message:     "Cannot found Refresh Token",
 		}
 		c.JSON(http.StatusForbidden, resp)
+		return
 	}
 
 	exchangeRes, err := k.keycloakClient.RefreshAccessToken(refreshToken)
@@ -116,6 +118,7 @@ func (k *keycloakHandlers) RefreshToken(c *gin.Context) {
 				Message:     "Your token is not valid token",
 			}
 			c.JSON(http.StatusForbidden, resp)
+			return
 		} else {
 			resp := dto.TokenExchangeRes{
 				AccessToken: "",
@@ -136,6 +139,7 @@ func (k *keycloakHandlers) RefreshToken(c *gin.Context) {
 	}
 
 	// Refresh token 갱신
+	c.SetSameSite(http.SameSiteNoneMode)
 	c.SetCookie(
 		k.securityConfig.RefreshCookieName,
 		exchangeRes.RefreshToken,
@@ -160,6 +164,7 @@ func (k *keycloakHandlers) Logout(c *gin.Context) {
 			Message:     "Cannot found Refresh Token",
 		}
 		c.JSON(http.StatusForbidden, resp)
+		return
 	}
 
 	err = k.keycloakClient.Logout(refreshToken)
@@ -174,6 +179,7 @@ func (k *keycloakHandlers) Logout(c *gin.Context) {
 				Message:     "Your token is not valid token",
 			}
 			c.JSON(http.StatusForbidden, resp)
+			return
 		} else {
 			resp := dto.TokenExchangeRes{
 				AccessToken: "",
