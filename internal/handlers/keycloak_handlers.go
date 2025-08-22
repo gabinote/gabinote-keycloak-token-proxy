@@ -17,6 +17,7 @@ type KeycloakHandlers interface {
 	RefreshToken(c *gin.Context)
 	Logout(c *gin.Context)
 	Login(c *gin.Context)
+	DummyBackchannelLogout(c *gin.Context)
 }
 
 type keycloakHandlers struct {
@@ -255,4 +256,9 @@ func (k *keycloakHandlers) Login(c *gin.Context) {
 	}
 
 	c.Redirect(http.StatusFound, loginUrl)
+}
+
+func (k *keycloakHandlers) DummyBackchannelLogout(c *gin.Context) {
+
+	c.Status(http.StatusOK)
 }
