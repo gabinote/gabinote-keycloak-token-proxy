@@ -93,6 +93,7 @@ func (k *keycloakClient) RefreshAccessToken(refreshToken string) (*KeycloakAcces
 	form.Set("grant_type", "refresh_token")
 	form.Set("client_id", k.config.ClientID)
 	form.Set("refresh_token", refreshToken)
+	form.Set("client_secret", k.config.ClientSecret)
 
 	req, err := http.NewRequest("POST", tokenUrl, bytes.NewBufferString(form.Encode()))
 	if err != nil {
