@@ -10,8 +10,8 @@ Keycloak Identity Broker Token Exchange 수행시, 클라이언트와 Keycloak �
 
 ### 인증 프로세스
 
-1. 클라이언트가 Keycloak에 kc_idp_hint를 포함한 로그인 요청을 보냅니다.
-2. keycloak 서버는 kc_idp_hint에 해당하는 Identity Provider의 인증 URL로 리다이렉트합니다.
+1. 클라이언트가 프록시 서버에에 kc_idp_hint를 포함한 로그인 요청을 보냅니다.
+2. 프로록시 서버는 kc_idp_hint에 해당하는 Keycloak의 Identity Provider의 인증 URL로 리다이렉트합니다.
 3. 클라이언트는 리다이렉트된 URL에서 로그인을 수행하고, 외부 Idp 토큰을 획득합니다.
 4. 클라이언트는 외부 Idp 토큰과 pkce를 포함하여 프록시 서버에 POST 요청을 보냅니다.
 5. 프록시 서버는 외부 Idp 토큰을 과 pkce를 keycloak 서버에 전달하여 토큰 교환을 요청합니다.
@@ -23,17 +23,23 @@ Keycloak Identity Broker Token Exchange 수행시, 클라이언트와 Keycloak �
 
 ## 2. API Endpoints
 
+### GET /keycloak/login
+
+#### query parameters
+| Name                  | Type   | Required | Description                                                                                      |
+|-----------------------|--------|----------|--------------------------------------------------------------------------------------------------|
+| redirect_uri          | string | yes      | 클라이언트가 Keycloak 로그인 후 돌아올 콜백 URL. 반드시 Keycloak 클라이언트 설정에 등록된 URI여야 합니다.                          |
+| code_challenge        | string | yes      | PKCE (Proof Key for Code Exchange)에서 사용되는 코드 챌린지 값. Authorization Code Flow에서 보안을 강화하기 위해 필요합니다. |
+| code_challenge_method | string | yes      | PKCE 코드 챌린지 생성 방법. 일반적으로 `S256` 사용.                                                              |
+| idp_hint              | string | yes      | Keycloak 로그인 화면에서 특정 Identity Provider(Google, GitHub 등)를 바로 선택하도록 하는 힌트.                        |
+
+
+
+### response
+* 302
+
 ### POST /keycloak/exchange
 Identity Broker Login Flow에서 발급받은 외부 IdP 토큰을 Keycloak Access Token으로 교환하고, Refresh Token은 HTTP-Only Secure 쿠키로 저장합니다.
-
-#### request body
-```json
-{
-    "exchange_token": "ipd_token", // 외부 IdP 토큰
-    "code_verifier": "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk", // PKCE code verifier
-    "redirection_url": "http://localhost:3000/callback"
-}
-```
 
 
 #### response

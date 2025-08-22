@@ -3,8 +3,6 @@ package keycloak
 import (
 	"bytes"
 	"fmt"
-	"github.com/goccy/go-json"
-	"github.com/sirupsen/logrus"
 	"io"
 	"keycloak-token-proxy/config"
 	"keycloak-token-proxy/internal/dto"
@@ -12,6 +10,9 @@ import (
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/goccy/go-json"
+	"github.com/sirupsen/logrus"
 )
 
 // KeycloakClient defines the interface for Keycloak authentication operations.
@@ -19,6 +20,7 @@ type KeycloakClient interface {
 	ExchangeToken(req *dto.TokenExchangeReq) (*KeycloakTokenExchangeRes, error)
 	RefreshAccessToken(refreshToken string) (*KeycloakAccessTokenResponse, error)
 	Logout(refreshToken string) error
+	CreateIpdLoginUrl(ipdLoginUrl *IpdLoginUrl) (string, error)
 }
 
 type keycloakClient struct {
@@ -159,4 +161,25 @@ func (k *keycloakClient) Logout(refreshToken string) error {
 		}
 	}
 	return nil
+}
+
+type IpdLoginUrl struct {
+	RedirectUri         string
+	CodeChallenge       string
+	CodeChallengeMethod string
+	IdpHint             string
+}
+
+func (k *keycloakClient) CreateIpdLoginUrl(ipdLoginUrl *IpdLoginUrl) (string, error) {
+	loginUrl, _ := url.Parse(fmt.Sprintf("%s/realms/%s/protocol/openid-connect/auth", k.config.URL, k.config.Realm))
+	q := loginUrl.Query()
+	q.Set("client_id", k.config.ClientID)
+	q.Set("redirect_uri", ipdLoginUrl.RedirectUri)
+	q.Set("code_challenge_method", ipdLoginUrl.CodeChallengeMethod)
+	q.Set("code_challenge", ipdLoginUrl.CodeChallenge)
+	q.Set("kc_idp_hint", ipdLoginUrl.IdpHint)
+	q.Set("scope", "openid")
+	q.Set("response_type", "code")
+	loginUrl.RawQuery = q.Encode()
+	return loginUrl.String(), nil
 }
