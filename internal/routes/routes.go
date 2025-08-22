@@ -56,6 +56,7 @@ func (r *router) setupRoutes() {
 	r.engine.POST("/keycloak/refresh", r.keycloakHandler.RefreshToken)
 	r.engine.DELETE("/keycloak/logout", r.keycloakHandler.Logout)
 	r.engine.GET("/keycloak/login", r.keycloakHandler.Login)
+	r.engine.POST("/keycloak/backchannel-logout", r.keycloakHandler.DummyBackchannelLogout)
 
 	// 404 핸들러
 	r.engine.NoRoute(r.errorHandlers.NotFound)
