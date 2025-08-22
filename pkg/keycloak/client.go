@@ -43,6 +43,7 @@ func (k *keycloakClient) ExchangeToken(data *dto.TokenExchangeReq) (*KeycloakTok
 
 	form := url.Values{}
 	form.Set("grant_type", "authorization_code")
+	form.Set("client_secret", k.config.ClientSecret)
 	form.Set("client_id", k.config.ClientID)
 	form.Set("code", data.ExchangeToken)
 	form.Set("redirect_uri", data.RedirectionUrl)
