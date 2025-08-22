@@ -1,8 +1,9 @@
 package routes
 
 import (
-	"github.com/gin-gonic/gin"
 	"keycloak-token-proxy/internal/handlers"
+
+	"github.com/gin-gonic/gin"
 )
 
 // Router defines the interface for setting up routes and middleware in the application.
@@ -54,6 +55,7 @@ func (r *router) setupRoutes() {
 	r.engine.POST("/keycloak/exchange", r.keycloakHandler.ExchangeToken)
 	r.engine.POST("/keycloak/refresh", r.keycloakHandler.RefreshToken)
 	r.engine.DELETE("/keycloak/logout", r.keycloakHandler.Logout)
+	r.engine.GET("/keycloak/login", r.keycloakHandler.Login)
 
 	// 404 핸들러
 	r.engine.NoRoute(r.errorHandlers.NotFound)

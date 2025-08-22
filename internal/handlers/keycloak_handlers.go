@@ -2,12 +2,13 @@ package handlers
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 	"keycloak-token-proxy/config"
 	"keycloak-token-proxy/internal/dto"
 	"keycloak-token-proxy/pkg/keycloak"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 // KeycloakHandlers provides methods to handle Keycloak token exchange, refresh, and logout requests.
@@ -15,6 +16,7 @@ type KeycloakHandlers interface {
 	ExchangeToken(c *gin.Context)
 	RefreshToken(c *gin.Context)
 	Logout(c *gin.Context)
+	Login(c *gin.Context)
 }
 
 type keycloakHandlers struct {
@@ -78,15 +80,16 @@ func (k *keycloakHandlers) ExchangeToken(c *gin.Context) {
 		Message:     "OK",
 	}
 
-	c.SetCookie(
-		k.securityConfig.RefreshCookieName,
-		exchangeRes.RefreshToken,
-		k.securityConfig.RefreshMaxAge,
-		k.securityConfig.RefreshAllowPath,
-		k.securityConfig.RefreshDomain,
-		true,
-		true,
-	)
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     k.securityConfig.RefreshCookieName,
+		Value:    exchangeRes.RefreshToken,
+		Path:     "/",
+		Domain:   k.securityConfig.RefreshDomain,
+		MaxAge:   k.securityConfig.RefreshMaxAge,
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: http.SameSiteNoneMode,
+	})
 
 	c.JSON(http.StatusOK, resp)
 }
@@ -211,4 +214,45 @@ func (k *keycloakHandlers) Logout(c *gin.Context) {
 		true,
 	)
 
+}
+
+// Login Identity Provider Login Flow 핸들러.
+func (k *keycloakHandlers) Login(c *gin.Context) {
+
+	redirectUri := c.Query("redirect_uri")
+	if redirectUri == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "redirect_uri is required"})
+		return
+	}
+
+	codeChallenge := c.Query("code_challenge")
+	if codeChallenge == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "code_challenge is required"})
+	}
+
+	codeChallengeMethod := c.Query("code_challenge_method")
+	if codeChallengeMethod == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "code_challenge_method is required"})
+	}
+
+	idpHint := c.Query("idp_hint")
+	if idpHint == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "idp_hint is required"})
+	}
+
+	loginReq := &keycloak.IpdLoginUrl{
+		RedirectUri:         redirectUri,
+		CodeChallenge:       codeChallenge,
+		CodeChallengeMethod: codeChallengeMethod,
+		IdpHint:             idpHint,
+	}
+
+	loginUrl, err := k.keycloakClient.CreateIpdLoginUrl(loginReq)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Redirect(http.StatusFound, loginUrl)
 }
